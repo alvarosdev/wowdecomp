@@ -7,9 +7,9 @@
 
 #include "fmod_outputi.h"
 
-#include "asio\asiosys.h"
-#include "asio\asio.h"
-#include "asio\asiodrivers.h"
+#include "asio/asiosys.h"
+#include "asio/asio.h"
+#include "asio/asiodrivers.h"
 
 namespace FMOD
 {

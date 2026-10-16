@@ -6,7 +6,13 @@
 #include "Engine/Source/Storm/Source/SThread.h"
 #include "Engine/Source/Storm/H/storm.h"
 
-#define SLOCK_SPIN_NOPS() __nop(); __nop(); __nop(); __nop(); __nop(); __nop(); __nop(); __nop(); __nop(); __nop(); __nop(); __nop(); __nop(); __nop(); __nop(); __nop(); __nop(); __nop(); __nop(); __nop(); __nop(); __nop(); __nop(); __nop(); __nop(); __nop(); __nop(); __nop(); __nop(); __nop(); __nop(); __nop(); __nop(); __nop(); __nop(); __nop(); __nop(); __nop(); __nop(); __nop();
+#ifdef __MINGW32__
+// MinGW no trae el intrínseco __nop de MSVC: misma instrucción vía asm.
+#define SLOCK_NOP() __asm__ volatile ("nop")
+#else
+#define SLOCK_NOP() __nop()
+#endif
+#define SLOCK_SPIN_NOPS() SLOCK_NOP(); SLOCK_NOP(); SLOCK_NOP(); SLOCK_NOP(); SLOCK_NOP(); SLOCK_NOP(); SLOCK_NOP(); SLOCK_NOP(); SLOCK_NOP(); SLOCK_NOP(); SLOCK_NOP(); SLOCK_NOP(); SLOCK_NOP(); SLOCK_NOP(); SLOCK_NOP(); SLOCK_NOP(); SLOCK_NOP(); SLOCK_NOP(); SLOCK_NOP(); SLOCK_NOP(); SLOCK_NOP(); SLOCK_NOP(); SLOCK_NOP(); SLOCK_NOP(); SLOCK_NOP(); SLOCK_NOP(); SLOCK_NOP(); SLOCK_NOP(); SLOCK_NOP(); SLOCK_NOP(); SLOCK_NOP(); SLOCK_NOP(); SLOCK_NOP(); SLOCK_NOP(); SLOCK_NOP(); SLOCK_NOP(); SLOCK_NOP(); SLOCK_NOP(); SLOCK_NOP(); SLOCK_NOP();
 
 // STATIC: 0x00ADE8B8
 static uint32_t s_spinCount = 1;

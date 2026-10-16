@@ -410,3 +410,14 @@ FodyWeavers.xsd
 
 # Local Visual Studio CMake settings (absolute paths to re/tools)
 CMakeSettings.json
+
+
+build/
+
+# Cross-compile MinGW (ver Makefile): symlink local a los MPQ y DLLs de
+# runtime copiadas por POST_BUILD. bin/ ya está ignorado arriba; esto lo
+# deja explícito por si alguna regla futura lo re-incluye.
+bin/Win/Data
+bin/Win/libgcc_s_seh-1.dll
+bin/Win/libstdc++-6.dll
+bin/Win/libwinpthread-1.dll

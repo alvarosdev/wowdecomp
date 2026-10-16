@@ -52,17 +52,36 @@ target_include_directories(lzma
 )
 
 if (WIN32)
-    add_library(nvapi INTERFACE)
+    if (MINGW)
+        # nvapi64.lib es MSVC-only (objetos /GS + CRT interno, no enlaza con
+        # MinGW). Estática con stub: solo se pierde 3D Vision estéreo.
+        add_library(nvapi STATIC
+            nvapi/nvapi_mingw_stub.cpp
+        )
 
-    target_include_directories(nvapi
-        INTERFACE
-            ${CMAKE_CURRENT_SOURCE_DIR}/nvapi
-    )
+        target_include_directories(nvapi
+            PUBLIC
+                ${CMAKE_CURRENT_SOURCE_DIR}/nvapi
+                ${CMAKE_SOURCE_DIR}
+        )
 
-    if (CMAKE_SIZEOF_VOID_P EQUAL 8)
-        target_link_libraries(nvapi INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/nvapi/amd64/nvapi64.lib)
+        target_compile_definitions(nvapi
+            PUBLIC
+                __NVAPI_EMPTY_SAL
+        )
     else ()
-        target_link_libraries(nvapi INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/nvapi/x86/nvapi.lib)
+        add_library(nvapi INTERFACE)
+
+        target_include_directories(nvapi
+            INTERFACE
+                ${CMAKE_CURRENT_SOURCE_DIR}/nvapi
+        )
+
+        if (CMAKE_SIZEOF_VOID_P EQUAL 8)
+            target_link_libraries(nvapi INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/nvapi/amd64/nvapi64.lib)
+        else ()
+            target_link_libraries(nvapi INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/nvapi/x86/nvapi.lib)
+        endif ()
     endif ()
 endif ()
 

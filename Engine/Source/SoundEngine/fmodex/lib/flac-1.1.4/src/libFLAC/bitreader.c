@@ -35,8 +35,8 @@
 
 #include <stdlib.h> /* for malloc() */
 #include <string.h> /* for memcpy(), memset() */
-#if defined(_MSC_VER)
-#include <winsock.h> /* for ntohl() */
+#if defined(_MSC_VER) || defined(__MINGW32__) || defined(_WIN32)
+#include <winsock2.h> /* for ntohl() */
 #elif defined FLAC__SYS_DARWIN
 #include <machine/endian.h> /* for ntohl() */
 #else

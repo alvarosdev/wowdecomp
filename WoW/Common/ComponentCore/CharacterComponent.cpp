@@ -5,7 +5,7 @@
 #include <emmintrin.h>
 #include <new>
 #include <typeinfo>
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) || defined(__MINGW32__)
 #include <malloc.h>
 #else
 #include <alloca.h>

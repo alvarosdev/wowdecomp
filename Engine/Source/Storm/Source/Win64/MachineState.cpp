@@ -950,11 +950,16 @@ static void sReadModuleDebugInfo(MODULEDEBUGINFO* info, const uint8_t* base) {
 static void sLogModuleLine(void (*logLineProc)(void*, const char*, ...), void* logLineProcParam, void* base, const char* name, uint32_t size) {
     MODULEDEBUGINFO info;
 
+#if defined(_MSC_VER)
     __try {
         sReadModuleDebugInfo(&info, static_cast<const uint8_t*>(base));
     } __except (GetExceptionCode() == EXCEPTION_ACCESS_VIOLATION || GetExceptionCode() == EXCEPTION_IN_PAGE_ERROR ? EXCEPTION_EXECUTE_HANDLER : EXCEPTION_CONTINUE_SEARCH) {
         memset(&info, 0, sizeof(info));
     }
+#else
+    // Sin SEH en MinGW: el módulo viene de enumeración válida, lectura directa.
+    sReadModuleDebugInfo(&info, static_cast<const uint8_t*>(base));
+#endif
 
     char checksum[10];
 
@@ -998,6 +1003,7 @@ static void sLogLoadedModules(void (*logLineProc)(void*, const char*, ...), void
 
         CloseHandle(snapshot);
     } else if (GetModuleHandleW(L"ntdll.dll")) {
+#if defined(_MSC_VER)
         __try {
             LIST_ENTRY* head = &NtCurrentTeb()->ProcessEnvironmentBlock->Ldr->InMemoryOrderModuleList;
 
@@ -1031,6 +1037,41 @@ static void sLogLoadedModules(void (*logLineProc)(void*, const char*, ...), void
             }
         } __except (EXCEPTION_EXECUTE_HANDLER) {
         }
+#else
+        // Sin SEH en MinGW: mismo recorrido del PEB sin guardia.
+        {
+            LIST_ENTRY* head = &NtCurrentTeb()->ProcessEnvironmentBlock->Ldr->InMemoryOrderModuleList;
+
+            for (LIST_ENTRY* link = head->Flink; link != head && numModules != 256; link = link->Flink) {
+                LDR_DATA_TABLE_ENTRY* ldrEntry = CONTAINING_RECORD(link, LDR_DATA_TABLE_ENTRY, InMemoryOrderLinks);
+                LOADEDMODULE* module = &modules[numModules];
+                module->base = ldrEntry->DllBase;
+                module->size = static_cast<uint32_t>(reinterpret_cast<uintptr_t>(ldrEntry->Reserved3[1]));
+
+                uint32_t length;
+
+                if (SUniConvertUTF16to8(module->name, 255, reinterpret_cast<const uint16_t*>(ldrEntry->FullDllName.Buffer), ldrEntry->FullDllName.Length, &length, nullptr) > 0) {
+                    length = 0;
+                }
+
+                module->name[length] = 0;
+
+                char* leaf = SStrChrR(module->name, '/');
+                char* backslash = SStrChrR(module->name, '\\');
+
+                if (backslash && (!leaf || leaf < backslash)) {
+                    leaf = backslash;
+                }
+
+                if (leaf) {
+                    ++leaf;
+                }
+
+                memmove(module->name, leaf, module->name + length - leaf + 1);
+                ++numModules;
+            }
+        }
+#endif
     }
 
     qsort(modules, numModules, sizeof(LOADEDMODULE), sModuleCompareProc);

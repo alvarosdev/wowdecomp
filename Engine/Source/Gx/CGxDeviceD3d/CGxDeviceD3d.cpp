@@ -181,6 +181,7 @@ char* CGxDeviceD3d::IBufLock(CGxBuf* buf) {
     }
 
     if (SUCCEEDED(result) && buf->m_size) {
+#if defined(_MSC_VER)
         __try {
             volatile char* probe = data;
 
@@ -192,6 +193,16 @@ char* CGxDeviceD3d::IBufLock(CGxBuf* buf) {
         } __except (EXCEPTION_EXECUTE_HANDLER) {
             result = E_FAIL;
         }
+#else
+        // Sin SEH en MinGW: Lock() exitoso implica mapeo válido, probe directo.
+        volatile char* probe = data;
+
+        if (pool->m_usage == GxPoolUsage_Stream) {
+            *probe = 0;
+        } else {
+            *probe = *probe;
+        }
+#endif
     }
 
     if (FAILED(result)) {

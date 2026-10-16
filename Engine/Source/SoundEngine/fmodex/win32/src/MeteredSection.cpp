@@ -6,6 +6,7 @@
 
 #include <windows.h>
 #include <tchar.h>
+#include <algorithm>
 #include "MeteredSection.h"
 #include "../../src/fmod_memory.h"
 
@@ -147,7 +148,7 @@ BOOL LeaveMeteredSection(LPMETERED_SECTION lpMetSect, LONG lReleaseCount,
     
     // Set the event the appropriate number of times
     lReleaseCount = 
-      min(lReleaseCount,lpMetSect->lpSharedInfo->lThreadsWaiting);
+      (std::min)(lReleaseCount, lpMetSect->lpSharedInfo->lThreadsWaiting);
     if (lpMetSect->lpSharedInfo->lThreadsWaiting)
     {
         for (iCount=0; iCount < lReleaseCount ; iCount++)

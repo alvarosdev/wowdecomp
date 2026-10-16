@@ -50,6 +50,9 @@ target_link_libraries(fmodex
 
 if (MSVC)
     target_compile_options(fmodex PRIVATE /MP)
+elseif (MINGW)
+    # fmodex es código Win32 de era MSVC: narrowing en init-lists es error con GCC.
+    target_compile_options(fmodex PRIVATE -Wno-narrowing)
 endif ()
 
 if (CMAKE_SIZEOF_VOID_P EQUAL 4)

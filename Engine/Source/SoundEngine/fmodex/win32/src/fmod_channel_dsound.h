@@ -17,6 +17,7 @@
 namespace FMOD
 {
     class Output;
+    class OutputDSound;
 
     class ChannelDSound : public ChannelReal
     {

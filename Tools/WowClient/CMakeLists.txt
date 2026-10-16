@@ -36,7 +36,15 @@ target_include_directories(WowClient
         ${CMAKE_SOURCE_DIR}
 )
 
-target_link_options(WowClient PRIVATE "/INCREMENTAL:NO" "/ENTRY:start")
+if (MSVC)
+    target_link_options(WowClient PRIVATE "/INCREMENTAL:NO" "/ENTRY:start")
+elseif (MINGW)
+    target_link_options(WowClient PRIVATE "-Wl,-e,start")
+    # ld de GNU hace una sola pasada sobre las ~40 estáticas: con dependencias
+    # cruzadas quedan cientos de undefined. Se envuelven en grupo de reescaneo
+    # (MSVC reescanea solo). El -end-group va tras las libs (ver abajo).
+    target_link_options(WowClient PRIVATE "-Wl,--start-group")
+endif ()
 
 target_link_libraries(WowClient
     PRIVATE
@@ -85,3 +93,31 @@ target_link_libraries(WowClient
         WowSvcs
         dbghelp
 )
+
+if (MINGW)
+    # Cierre del grupo de reescaneo: va tras las estáticas (ver arriba).
+    target_link_libraries(WowClient PRIVATE "-Wl,--end-group")
+
+    # El exe necesita las DLLs de runtime MinGW junto a él para correr con Wine.
+    # Se buscan con el compilador en uso y, si es Clang (sin runtime propio),
+    # con el g++ de MinGW, cuyo libstdc++ usa Clang también.
+    foreach (mingw_dll libgcc_s_seh-1.dll libstdc++-6.dll libwinpthread-1.dll)
+        execute_process(
+            COMMAND ${CMAKE_CXX_COMPILER} -print-file-name=${mingw_dll}
+            OUTPUT_VARIABLE MINGW_DLL_PATH
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+        )
+        if (NOT EXISTS ${MINGW_DLL_PATH})
+            execute_process(
+                COMMAND x86_64-w64-mingw32-g++ -print-file-name=${mingw_dll}
+                OUTPUT_VARIABLE MINGW_DLL_PATH
+                OUTPUT_STRIP_TRAILING_WHITESPACE
+            )
+        endif ()
+        if (EXISTS ${MINGW_DLL_PATH})
+            add_custom_command(TARGET WowClient POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E copy_if_different ${MINGW_DLL_PATH} ${CMAKE_SOURCE_DIR}/bin/Win/${mingw_dll}
+            )
+        endif ()
+    endforeach ()
+endif ()

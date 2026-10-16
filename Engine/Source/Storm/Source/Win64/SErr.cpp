@@ -141,10 +141,17 @@ T* TSListWinHeap<T, TGetLink>::NewNode(uint32_t location, size_t extrabytes, uin
 
 // OFFSET: 0x00427010
 static void Breakpoint() {
+#if defined(_MSC_VER)
     __try {
         __debugbreak();
     } __except (EXCEPTION_EXECUTE_HANDLER) {
     }
+#else
+    // Sin SEH en MinGW: solo interrumpir si hay depurador, si no seguir.
+    if (IsDebuggerPresent()) {
+        __debugbreak();
+    }
+#endif
 }
 
 // OFFSET: 0x00770F70
@@ -937,7 +944,9 @@ static LONG WINAPI ExceptionFilterWin32(EXCEPTION_POINTERS* exceptionpointers) {
     buffer[0] = 0;
     message[0] = 0;
 
+#if defined(_MSC_VER)
     __try {
+#endif
         GetExceptionNameWin32(record->ExceptionCode, exceptionname, sizeof(exceptionname));
         SStrPrintf(buffer, sizeof(buffer), "0x%p (%s) at %04X:%p", reinterpret_cast<void*>(static_cast<uintptr_t>(record->ExceptionCode)), exceptionname, exceptionpointers->ContextRecord->SegCs, record->ExceptionAddress);
 
@@ -948,6 +957,7 @@ static LONG WINAPI ExceptionFilterWin32(EXCEPTION_POINTERS* exceptionpointers) {
         }
 
         SErrDisplayError(STORM_ERROR_FATAL, buffer, SLOG_EXCEPTION, message, 0, 1, 0x11111111);
+#if defined(_MSC_VER)
     } __except (EXCEPTION_EXECUTE_HANDLER) {
         HANDLE file = CreateFileA("Errors\\exception-failed.txt", GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
 
@@ -961,6 +971,9 @@ static LONG WINAPI ExceptionFilterWin32(EXCEPTION_POINTERS* exceptionpointers) {
             CloseHandle(file);
         }
     }
+#else
+    // Sin SEH en MinGW: se ejecuta el cuerpo sin la guardia de fallo anidado.
+#endif
 
     return EXCEPTION_CONTINUE_SEARCH;
 }

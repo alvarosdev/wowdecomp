@@ -1,12 +1,25 @@
-add_library(XvidDecoder SHARED
-    XvidDecoder.cpp
-    XvidDecoder.def
-)
+if (MINGW)
+    # Sin libxvidcore (MSVC-only): backend stub, ver XvidDecoderStub.cpp.
+    add_library(XvidDecoder SHARED
+        XvidDecoderStub.cpp
+        XvidDecoder.def
+    )
+else ()
+    add_library(XvidDecoder SHARED
+        XvidDecoder.cpp
+        XvidDecoder.def
+    )
+endif ()
 
 set_target_properties(XvidDecoder PROPERTIES
     OUTPUT_NAME XvidDecoder
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin/Win
 )
+
+if (MINGW)
+    # MinGW antepone "lib" a las SHARED; el cliente carga "XvidDecoder.dll".
+    set_target_properties(XvidDecoder PROPERTIES PREFIX "")
+endif ()
 
 foreach (config ${CMAKE_CONFIGURATION_TYPES} ${CMAKE_BUILD_TYPE})
     string(TOUPPER ${config} config)
@@ -19,12 +32,16 @@ target_include_directories(XvidDecoder
         ${CMAKE_SOURCE_DIR}/ThirdParty/xvidcore/include
 )
 
-target_link_libraries(XvidDecoder
-    PRIVATE
-        ${CMAKE_SOURCE_DIR}/ThirdParty/xvidcore/lib/x64/libxvidcore.lib
-)
+if (NOT MINGW)
+    target_link_libraries(XvidDecoder
+        PRIVATE
+            ${CMAKE_SOURCE_DIR}/ThirdParty/xvidcore/lib/x64/libxvidcore.lib
+    )
+endif ()
 
-target_compile_options(XvidDecoder
-    PRIVATE
-        $<$<CONFIG:Debug>:/MD>
-)
+if (MSVC)
+    target_compile_options(XvidDecoder
+        PRIVATE
+            $<$<CONFIG:Debug>:/MD>
+    )
+endif ()

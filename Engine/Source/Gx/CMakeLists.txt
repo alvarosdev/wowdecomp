@@ -13,15 +13,21 @@ target_include_directories(Gx
         ${CMAKE_SOURCE_DIR}
 )
 
-target_link_libraries(Gx
-    PRIVATE
-        d3d9.lib
-)
+if (MSVC)
+    target_link_libraries(Gx PRIVATE d3d9.lib)
+else ()
+    # MinGW: enlaza contra libd3d9.a del toolchain (import lib del sistema).
+    target_link_libraries(Gx PRIVATE d3d9)
+endif ()
 
 if (WIN32)
     target_link_libraries(Gx
         PRIVATE
             nvapi
-            opengl32.lib
     )
+    if (MSVC)
+        target_link_libraries(Gx PRIVATE opengl32.lib)
+    else ()
+        target_link_libraries(Gx PRIVATE opengl32)
+    endif ()
 endif ()

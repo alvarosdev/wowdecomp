@@ -11,10 +11,10 @@
 
 // 0x0600 is Vista (safe since WASAPI output mode is only available on Vista)
 #define _WIN32_WINNT 0x0601
-#include <Windows.h>
+#include <windows.h>
 
-#include "wasapi\fmod_audioclient.h"
-#include "wasapi\fmod_mmdeviceapi.h"
+#include "wasapi/fmod_audioclient.h"
+#include "wasapi/fmod_mmdeviceapi.h"
 
 namespace FMOD
 {

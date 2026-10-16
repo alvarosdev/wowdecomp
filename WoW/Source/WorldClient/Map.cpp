@@ -1,6 +1,6 @@
 #include "Map.h"
 #include "Engine/Source/ShaderEffect/ShadowCache.h"
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) || defined(__MINGW32__)
 #include <malloc.h>
 #else
 #include <alloca.h>

@@ -1,4 +1,5 @@
 #include "PlayerName.h"
+#include <cmath>
 #include <typeinfo>
 #include "Engine/Source/Base/CDataAllocator.h"
 #include "Engine/Source/Base/Handle.h"

@@ -6,7 +6,7 @@
 #include <cstring>
 #include <new>
 #include <xmmintrin.h>
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) || defined(__MINGW32__)
 #include <malloc.h>
 #else
 #include <alloca.h>

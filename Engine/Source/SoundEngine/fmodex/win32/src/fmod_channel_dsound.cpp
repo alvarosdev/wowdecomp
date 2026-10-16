@@ -156,7 +156,7 @@ FMOD_RESULT ChannelDSound::alloc()
     }
 	else
 	{
-		hr = mOutputDSound->mDirectSound->DuplicateSoundBuffer(sampledsound->mBuffer, (IDirectSoundBuffer **)&mBuffer);
+		hr = mOutputDSound->mDirectSound->DuplicateSoundBuffer(reinterpret_cast<LPDIRECTSOUNDBUFFER>(sampledsound->mBuffer), (IDirectSoundBuffer **)&mBuffer);
 		if (hr != DS_OK)
 		{
 			return FMOD_ERR_OUTPUT_DRIVERCALL; 

@@ -5,6 +5,7 @@
 
 #include "fmod_channel_openal_eax5.h"
 #include "fmod_eax5.h"
+#include <algorithm>
 
 namespace FMOD
 {
@@ -168,28 +169,28 @@ FMOD_RESULT ChannelOpenALEAX5::setSpeakerMix(float frontleft, float frontright, 
     FMOD_memcpy(&eaxSourceGuid, &FMOD_EAXPROPERTYID_EAX50_Source, sizeof(GUID));
 
 	eaxSourceSpeakerLevels[0].lSpeakerID = EAXSPEAKER_FRONT_LEFT;
-	eaxSourceSpeakerLevels[0].lLevel = (long)(100.0f * 20.0f * FMOD_LOG10(max(0.00001f, frontleft)));
+	eaxSourceSpeakerLevels[0].lLevel = (long)(100.0f * 20.0f * FMOD_LOG10((std::max)(0.00001f, frontleft)));
 
 	eaxSourceSpeakerLevels[1].lSpeakerID = EAXSPEAKER_FRONT_CENTER;
-	eaxSourceSpeakerLevels[1].lLevel = (long)(100.0f * 20.0f * FMOD_LOG10(max(0.00001f, center)));
+	eaxSourceSpeakerLevels[1].lLevel = (long)(100.0f * 20.0f * FMOD_LOG10((std::max)(0.00001f, center)));
 
 	eaxSourceSpeakerLevels[2].lSpeakerID = EAXSPEAKER_FRONT_RIGHT;
-	eaxSourceSpeakerLevels[2].lLevel = (long)(100.0f * 20.0f * FMOD_LOG10(max(0.00001f, frontright)));
+	eaxSourceSpeakerLevels[2].lLevel = (long)(100.0f * 20.0f * FMOD_LOG10((std::max)(0.00001f, frontright)));
 
 	eaxSourceSpeakerLevels[3].lSpeakerID = EAXSPEAKER_SIDE_RIGHT;
-	eaxSourceSpeakerLevels[3].lLevel = (long)(100.0f * 20.0f * FMOD_LOG10(max(0.00001f, sideright)));
+	eaxSourceSpeakerLevels[3].lLevel = (long)(100.0f * 20.0f * FMOD_LOG10((std::max)(0.00001f, sideright)));
 
 	eaxSourceSpeakerLevels[4].lSpeakerID = EAXSPEAKER_REAR_RIGHT;
-	eaxSourceSpeakerLevels[4].lLevel = (long)(100.0f * 20.0f * FMOD_LOG10(max(0.00001f, backright)));
+	eaxSourceSpeakerLevels[4].lLevel = (long)(100.0f * 20.0f * FMOD_LOG10((std::max)(0.00001f, backright)));
 
 	eaxSourceSpeakerLevels[5].lSpeakerID = EAXSPEAKER_REAR_LEFT;
-	eaxSourceSpeakerLevels[5].lLevel = (long)(100.0f * 20.0f * FMOD_LOG10(max(0.00001f, backleft)));
+	eaxSourceSpeakerLevels[5].lLevel = (long)(100.0f * 20.0f * FMOD_LOG10((std::max)(0.00001f, backleft)));
 
 	eaxSourceSpeakerLevels[6].lSpeakerID = EAXSPEAKER_SIDE_LEFT;
-	eaxSourceSpeakerLevels[6].lLevel = (long)(100.0f * 20.0f * FMOD_LOG10(max(0.00001f, sideleft)));
+	eaxSourceSpeakerLevels[6].lLevel = (long)(100.0f * 20.0f * FMOD_LOG10((std::max)(0.00001f, sideleft)));
 	
 	eaxSourceSpeakerLevels[7].lSpeakerID = EAXSPEAKER_LOW_FREQUENCY;
-	eaxSourceSpeakerLevels[7].lLevel = (long)(100.0f * 20.0f * FMOD_LOG10(max(0.00001f, lfe)));
+	eaxSourceSpeakerLevels[7].lLevel = (long)(100.0f * 20.0f * FMOD_LOG10((std::max)(0.00001f, lfe)));
 
     /*
         Enable or disable speaker mode usage for OpenAL
@@ -290,7 +291,7 @@ FMOD_RESULT  ChannelOpenALEAX5::setSpeakerLevels(int speaker, float *levels, int
     for (int i = 0; i < numlevels; i++)
 	{
 		eaxSourceSpeakerLevels.lSpeakerID = FMOD_SPEAKER_TO_EAXSPEAKER[speaker];
-		eaxSourceSpeakerLevels.lLevel = (long)(100.0f * 20.0f * FMOD_LOG10(max(0.00001f, levels[i])));
+		eaxSourceSpeakerLevels.lLevel = (long)(100.0f * 20.0f * FMOD_LOG10((std::max)(0.00001f, levels[i])));
 
 	    mOutputOAL->mEAXSet(&eaxSourceGuid, EAXSOURCE_FLAGS, mSources[i]->sid, &eaxSourceFlags,  sizeof(unsigned long));
         if (mOutputOAL->mOALFnTable.alGetError() != AL_NO_ERROR)

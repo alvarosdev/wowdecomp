@@ -26,10 +26,17 @@ static bool s_dbgHelpInitialized;
 
 // OFFSET: 0x00427010
 void Blizzard::Debug::Breakpoint() {
+#if defined(_MSC_VER)
     __try {
         __debugbreak();
     } __except (EXCEPTION_EXECUTE_HANDLER) {
     }
+#else
+    // Sin SEH en MinGW: solo interrumpir si hay depurador, si no seguir.
+    if (IsDebuggerPresent()) {
+        __debugbreak();
+    }
+#endif
 }
 
 // OFFSET: 0x00439880

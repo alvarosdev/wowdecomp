@@ -26,6 +26,7 @@ void AdditionalCheck1() {
     iface.m_freeLibrary = OsFreeLibrary;
     uint8_t detected = 0;
 
+#if defined(_MSC_VER)
     __try {
         if (*reinterpret_cast<const uint8_t*>(&OsValidateFunctionPointer) == 0xE9) {
             return;
@@ -34,6 +35,14 @@ void AdditionalCheck1() {
         detected = AdditionalCheck1Scan(&iface, 0);
     } __except (1) {
     }
+#else
+    // Sin SEH en MinGW: chequeo de integridad directo, sin guardia.
+    if (*reinterpret_cast<const uint8_t*>(&OsValidateFunctionPointer) == 0xE9) {
+        return;
+    }
+
+    detected = AdditionalCheck1Scan(&iface, 0);
+#endif
 
     if (detected) {
         SendBotDetected2(CMSG_BOT_DETECTED2, 0x60231D69);

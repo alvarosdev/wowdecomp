@@ -47,6 +47,22 @@ add_compile_definitions(
     _CRT_SECURE_NO_WARNINGS
 )
 
+# Compatibilidad MinGW: std::type_info::raw_name() es extensión de MSVC y no
+# existe en libstdc++. Todos los usos son typeid(T).raw_name() como etiqueta
+# del allocator, donde name() es equivalente. Solo MinGW; MSVC queda intacto.
+if (MINGW)
+    add_compile_definitions(raw_name=name)
+endif ()
+
+# Diferencias Clang-vs-GCC/MSVC, ambas con idéntica semántica tras suprimir:
+# - `register` (ignorado desde C++11) es error duro; el código vendored
+#   (jpeg, lua-5.1) lo usa decenas de veces. Se suprime en vez de forkear terceros.
+# - narrowing size_t->uint32_t en init-lists (p.ej. sizeof() en tablas): los tres
+#   truncan igual; Clang lo eleva a error. Solo Clang; MSVC/GCC quedan intactos.
+if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    add_compile_options(-Wno-register -Wno-c++11-narrowing)
+endif ()
+
 # Off by default: the client checks MPQ file MD5s (signaturefile) and GlueXML/FrameXML/AddOn .toc.sig files like the
 # original. ON accepts unsigned or modified game data and interface files.
 option(WOWDECOMP_DISABLE_SIGNATURE_CHECKS "Skip MPQ file signature and .toc signature checks" OFF)

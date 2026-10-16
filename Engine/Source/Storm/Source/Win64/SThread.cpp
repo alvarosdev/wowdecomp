@@ -72,10 +72,17 @@ static void SetThreadName(uint32_t threadId, const char* threadName) {
     info.dwThreadID = threadId;
     info.dwFlags = 0;
 
+#if defined(_MSC_VER)
     __try {
         RaiseException(MS_VC_EXCEPTION, 0, sizeof(info) / sizeof(ULONG_PTR), reinterpret_cast<ULONG_PTR*>(&info));
     } __except (EXCEPTION_CONTINUE_EXECUTION) {
     }
+#else
+    // Sin SEH en MinGW: la excepción sin depurador sería fatal; solo avisar si hay uno.
+    if (IsDebuggerPresent()) {
+        RaiseException(MS_VC_EXCEPTION, 0, sizeof(info) / sizeof(ULONG_PTR), reinterpret_cast<ULONG_PTR*>(&info));
+    }
+#endif
 }
 
 // OFFSET: 0x0076FEA0

@@ -51,6 +51,15 @@ typedef void (*AdapterSetTag)(void* data, int32_t tag);
 typedef uint32_t (*AdapterGetFourCC)(const void* data);
 typedef void (*AdapterSetFourCC)(void* data, uint32_t value);
 
+// BSN guarda callbacks como const void* en m_codeInfo. Recuperarlos exige
+// quitar const y reinterpretar a puntero a función; en dos pasos porque
+// reinterpret_cast directo con const es error duro en Clang (GCC/MSVC lo
+// aceptan). Semántica idéntica en los tres.
+template <typename AdapterFn>
+inline AdapterFn BSNAdapter(const void* code) {
+    return reinterpret_cast<AdapterFn>(const_cast<void*>(code));
+}
+
 struct Utf8Sequence {
     /* 0000 */ uint32_t m_length;
     /* 0004 */ uint8_t m_ranges[4][2];

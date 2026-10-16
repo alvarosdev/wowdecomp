@@ -494,11 +494,17 @@ int32_t IOsVersionChecksum(IOsVersionHashCallback& callback, const char* path, i
             return 0;
         }
 
+#if defined(_MSC_VER)
         __try {
             return ComputeChecksum(callback, reinterpret_cast<const uint8_t*>(module), 1);
         } __except (GetExceptionCode() == EXCEPTION_ACCESS_VIOLATION || GetExceptionCode() == EXCEPTION_IN_PAGE_ERROR ? EXCEPTION_EXECUTE_HANDLER : EXCEPTION_CONTINUE_SEARCH) {
             return 0;
         }
+#else
+        // Sin SEH en MinGW: el módulo ya está mapeado (GetModuleHandleW), se
+        // llama directo sin guardia de access violation.
+        return ComputeChecksum(callback, reinterpret_cast<const uint8_t*>(module), 1);
+#endif
     }
 
     int32_t result = 0;

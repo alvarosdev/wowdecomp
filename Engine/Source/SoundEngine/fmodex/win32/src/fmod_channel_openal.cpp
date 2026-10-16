@@ -23,6 +23,7 @@
 #include "fmod_sample_openal.h"
 #include "fmod_systemi.h"
 
+#include <algorithm>
 #include "fmod_output_openal.h"
 
 namespace FMOD
@@ -2352,7 +2353,7 @@ FMOD_RESULT ChannelOpenAL::updateChannel()
 	    {
 		    ALint processed = 0;
 		    mOutputOAL->mOALFnTable.alGetSourcei(mSources[i]->sid, AL_BUFFERS_PROCESSED, &processed);
-            processedBuffers = min(processed, processedBuffers);
+            processedBuffers = (std::min)(processed, processedBuffers);
 	    }
     }
 

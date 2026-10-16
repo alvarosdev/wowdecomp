@@ -91,7 +91,7 @@
 #include "Engine/Source/Frame/CSimpleTop.h"
 #include "WoW/Source/DB/Rec/GlyphPropertiesRec.h"
 #include "WoW/Source/DB/Rec/GlyphSlotRec.h"
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) || defined(__MINGW32__)
 #include <malloc.h>
 #else
 #include <alloca.h>
