@@ -79,7 +79,8 @@ logger off in `WowClient` with `-DWOWCLIENT_CRASH_LOG=OFF`.
 `build.bat` wraps the x64 commands above (Win32 is out of scope):
 
 ```bat
-build.bat                 :: classic / Release / WowClient
+build.bat                 :: show help (default with no arguments)
+build.bat classic         :: classic / Release / WowClient
 build.bat llvm            :: llvm / Release / WowClient
 build.bat llvm Debug Wow  :: llvm / Debug / target Wow
 build.bat clean [classic|llvm|all]
@@ -89,7 +90,7 @@ build.bat help
 | Flavor | Toolchain | Flags | Build dir |
 |---|---|---|---|
 | `classic` (default) | VS generator + MSVC, as above | none | `build/x64` |
-| `llvm` | VS generator + ClangCL (`-T ClangCL`) | `/arch:AVX2` | `build/x64-llvm` |
+| `llvm` | VS generator + ClangCL (`-T ClangCL`) | `/arch:AVX2 -Wno-register -Wno-c++11-narrowing` (`/EHsc` also on CXX) | `build/x64-llvm` |
 
 `llvm` needs the VS component **C++ Clang Compiler for Windows**. Both flavors write the EXE to `bin/Win/`. Add `reconfigure` anywhere in the command to force a fresh configure.
 

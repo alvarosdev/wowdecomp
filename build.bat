@@ -7,7 +7,7 @@ rem             MSVC-isms in CMake still work) with /arch:AVX2.
 rem Usage:
 rem   build.bat [classic^|llvm] [Release^|Debug] [target] [reconfigure]
 rem   build.bat clean [classic^|llvm^|all]
-rem   build.bat help
+rem   build.bat help                  - also the default with no arguments
 rem Examples:
 rem   build.bat                 -> classic / Release / WowClient
 rem   build.bat llvm            -> llvm / Release / WowClient
@@ -26,6 +26,7 @@ set "TARGET=WowClient"
 set "FORCE=0"
 set "ACTION=build"
 
+if "%~1"=="" set "ACTION=help"
 :parse
 if "%~1"=="" goto parsed
 if /i "%~1"=="classic" ( set "FLAVOR=classic" & set "FLAVOR_GIVEN=1" & shift & goto parse )
@@ -45,12 +46,32 @@ goto parse
 
 if /i "%ACTION%"=="help" (
   echo Usage:
-  echo   build.bat [classic^|llvm] [Release^|Debug] [target] [reconfigure]
+  echo   build.bat [flavor] [config] [target] [reconfigure]
   echo   build.bat clean [classic^|llvm^|all]
   echo   build.bat help
   echo.
-  echo Flavors: classic = README MSVC build, llvm = ClangCL + /arch:AVX2.
-  echo Build dirs: build\x64 [classic], build\x64-llvm [llvm]. EXE lands in bin\Win.
+  echo Flavors:
+  echo   classic  README build: VS + MSVC, no extra flags. Dir build\x64.
+  echo   llvm     VS + ClangCL -T ClangCL with /arch:AVX2. Dir build\x64-llvm.
+  echo            Needs VS component C++ Clang Compiler for Windows.
+  echo.
+  echo Configs: Release [default], Debug.
+  echo.
+  echo Targets: WowClient [default], Wow, MapViewer, M2Viewer, GxTest,
+  echo          MpqTest, BlpTest, DbcTest, AssetCheck.
+  echo.
+  echo Other:
+  echo   reconfigure  force a fresh configure. Needed after flag changes.
+  echo   clean        remove build dirs. clean llvm removes only build\x64-llvm.
+  echo   help         show this help. Also shown with no arguments.
+  echo.
+  echo Examples:
+  echo   build.bat                 show this help
+  echo   build.bat classic         build WowClient Release with MSVC
+  echo   build.bat llvm            build WowClient Release with ClangCL + AVX2
+  echo   build.bat llvm Debug Wow  build target Wow, Debug, llvm flavor
+  echo.
+  echo Output: EXE lands in bin\Win as WowClient64.exe or Wow64.exe.
   exit /b 0
 )
 
@@ -99,8 +120,8 @@ if "%NEED_CONFIGURE%"=="0" (
 ) else (
   if exist "%BLD%" rmdir /s /q "%BLD%"
   if /i "%FLAVOR%"=="llvm" (
-    echo Configuring llvm with "%GEN%" -T ClangCL /arch:AVX2 ...
-    cmake -S "%SRC%." -B "%BLD%" -G "%GEN%" -A x64 -T ClangCL "-DCMAKE_C_FLAGS=/arch:AVX2" "-DCMAKE_CXX_FLAGS=/arch:AVX2"
+    echo Configuring llvm with "%GEN%" -T ClangCL /arch:AVX2 -Wno-register -Wno-c++11-narrowing /EHsc ...
+    cmake -S "%SRC%." -B "%BLD%" -G "%GEN%" -A x64 -T ClangCL "-DCMAKE_C_FLAGS=/arch:AVX2 -Wno-register -Wno-c++11-narrowing" "-DCMAKE_CXX_FLAGS=/arch:AVX2 -Wno-register -Wno-c++11-narrowing /EHsc"
   ) else (
     echo Configuring classic with "%GEN%" ...
     cmake -S "%SRC%." -B "%BLD%" -G "%GEN%" -A x64
