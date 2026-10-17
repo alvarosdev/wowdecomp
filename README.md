@@ -74,6 +74,25 @@ The client is written to `bin/Win/`:
 `WowClient_crash.log` when the client crashes. `Wow` is the same client without it. You can also turn the
 logger off in `WowClient` with `-DWOWCLIENT_CRASH_LOG=OFF`.
 
+### build.bat (Windows, x64 one-command build)
+
+`build.bat` wraps the x64 commands above (Win32 is out of scope):
+
+```bat
+build.bat                 :: classic / Release / WowClient
+build.bat llvm            :: llvm / Release / WowClient
+build.bat llvm Debug Wow  :: llvm / Debug / target Wow
+build.bat clean [classic|llvm|all]
+build.bat help
+```
+
+| Flavor | Toolchain | Flags | Build dir |
+|---|---|---|---|
+| `classic` (default) | VS generator + MSVC, as above | none | `build/x64` |
+| `llvm` | VS generator + ClangCL (`-T ClangCL`) | `/arch:AVX2` | `build/x64-llvm` |
+
+`llvm` needs the VS component **C++ Clang Compiler for Windows**. Both flavors write the EXE to `bin/Win/`. Add `reconfigure` anywhere in the command to force a fresh configure.
+
 ### Options
 
 | CMake option | Default | Effect |
