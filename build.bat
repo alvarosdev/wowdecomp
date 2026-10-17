@@ -71,7 +71,8 @@ if /i "%ACTION%"=="help" (
   echo   build.bat llvm            build WowClient Release with ClangCL + AVX2
   echo   build.bat llvm Debug Wow  build target Wow, Debug, llvm flavor
   echo.
-  echo Output: EXE lands in bin\Win as WowClient64.exe or Wow64.exe.
+  echo Output: EXE lands in bin\Win. classic: WowClient64.exe or Wow64.exe.
+  echo          llvm: WowClient64-LLVM-AVX2.exe or Wow64-LLVM-AVX2.exe.
   exit /b 0
 )
 
@@ -121,7 +122,7 @@ if "%NEED_CONFIGURE%"=="0" (
   if exist "%BLD%" rmdir /s /q "%BLD%"
   if /i "%FLAVOR%"=="llvm" (
     echo Configuring llvm with "%GEN%" -T ClangCL /arch:AVX2 -Wno-register -Wno-c++11-narrowing /EHsc ...
-    cmake -S "%SRC%." -B "%BLD%" -G "%GEN%" -A x64 -T ClangCL "-DCMAKE_C_FLAGS=/arch:AVX2 -Wno-register -Wno-c++11-narrowing" "-DCMAKE_CXX_FLAGS=/arch:AVX2 -Wno-register -Wno-c++11-narrowing /EHsc"
+    cmake -S "%SRC%." -B "%BLD%" -G "%GEN%" -A x64 -T ClangCL "-DCMAKE_C_FLAGS=/arch:AVX2 -Wno-register -Wno-c++11-narrowing" "-DCMAKE_CXX_FLAGS=/arch:AVX2 -Wno-register -Wno-c++11-narrowing /EHsc" "-DWOWCLIENT_OUTPUT_OVERRIDE=WowClient64-LLVM-AVX2" "-DWOW_OUTPUT_OVERRIDE=Wow64-LLVM-AVX2"
   ) else (
     echo Configuring classic with "%GEN%" ...
     cmake -S "%SRC%." -B "%BLD%" -G "%GEN%" -A x64

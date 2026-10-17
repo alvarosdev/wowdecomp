@@ -92,7 +92,7 @@ build.bat help
 | `classic` (default) | VS generator + MSVC, as above | none | `build/x64` |
 | `llvm` | VS generator + ClangCL (`-T ClangCL`) | `/arch:AVX2 -Wno-register -Wno-c++11-narrowing` (`/EHsc` also on CXX) | `build/x64-llvm` |
 
-`llvm` needs the VS component **C++ Clang Compiler for Windows**. Both flavors write the EXE to `bin/Win/`. Add `reconfigure` anywhere in the command to force a fresh configure.
+The `llvm` flavor names its binaries `WowClient64-LLVM-AVX2.exe` / `Wow64-LLVM-AVX2.exe` so both flavors can live side by side in `bin/Win/` (via `WOWCLIENT_OUTPUT_OVERRIDE` / `WOW_OUTPUT_OVERRIDE`).
 
 ### Options
 
@@ -100,7 +100,7 @@ build.bat help
 |---|---|---|
 | `WOWDECOMP_DISABLE_SIGNATURE_CHECKS` | `OFF` | Skip the MPQ file and `.toc.sig` signature checks, so modified game data and interface files load |
 | `WOWCLIENT_CRASH_LOG` | `ON` | Build `WowClient` with the crash logger |
-| `WOWCLIENT_OUTPUT_OVERRIDE` | empty | Name the `WowClient` executable something other than `WowClient64` / `WowClient32` |
+| `WOW_OUTPUT_OVERRIDE` | empty | Name the `Wow` executable something other than `Wow64` / `Wow32` |
 
 ## Running
 
